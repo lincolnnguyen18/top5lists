@@ -4,6 +4,10 @@ const fs = require('fs');
 const { parse } = require('csv-parse');
 const bcrypt = require('bcrypt');
 
+function randomIntFromInterval(min, max) { // min and max included 
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
 (async () => {
   await client.connect();
   const db = client.db('cse316');
@@ -23,16 +27,16 @@ const bcrypt = require('bcrypt');
       "lastName": csvrow[2],
       "email": csvrow[4],
       "lists": {
-        "Animals to Eat": {list: csvrow[5].split(',').map(x => x.trim()), published: true, likes: 0, dislikes: 0, views: 0, publishedDate: new Date(2021, 0, 3), lastUpdated: new Date(2021, 1, 4), comments: []},
-        "Books": {list: csvrow[6].split(',').map(x => x.trim()), published: true, likes: 0, dislikes: 0, views: 0, publishedDate: new Date(2021, 1, 5), lastUpdated: new Date(2021, 1, 9), comments: []},
-        "Countries you'd like to Visit": {list: csvrow[7].split(',').map(x => x.trim()), published: true, likes: 0, dislikes: 0, views: 0, publishedDate: new Date(2021, 2, 5), lastUpdated: new Date(2021, 2, 5), comments: []},
-        "Foods": {list: csvrow[8].split(',').map(x => x.trim()), published: true, likes: 0, dislikes: 0, views: 0, publishedDate: new Date(2021, 1, 7), lastUpdated: new Date(2021, 1, 7), comments: []},
-        "Games": {list: csvrow[9].split(',').map(x => x.trim()), published: true, likes: 0, dislikes: 0, views: 0, publishedDate: new Date(2021, 8, 23), lastUpdated: new Date(2021, 8, 25), comments: []},
-        "Movies": {list: csvrow[10].split(',').map(x => x.trim()), published: false, likes: 0, dislikes: 0, views: 0, publishedDate: null, lastUpdated: new Date(), comments: []},
-        "Pink Floyd Songs": {list: csvrow[11].split(',').map(x => x.trim()), published: false, likes: 0, dislikes: 0, views: 0, publishedDate: null, lastUpdated: new Date(), comments: []},
-        "Programming Languages": {list: csvrow[12].split(',').map(x => x.trim()), published: false, likes: 0, dislikes: 0, views: 0, publishedDate: null, lastUpdated: new Date(), comments: []},
-        "Professional Sports Teams": {list: csvrow[13].split(',').map(x => x.trim()), published: false, likes: 0, dislikes: 0, views: 0, publishedDate: null, lastUpdated: new Date(), comments: []},
-        "TV Shows": {list: csvrow[14].split(',').map(x => x.trim()), published: false, likes: 0, dislikes: 0, views: 0, publishedDate: null, lastUpdated: new Date(), comments: []},
+        "Animals to Eat": {list: csvrow[5].split(',').map(x => x.trim()), published: true, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: new Date(2021, 0, 3), lastUpdated: new Date(2021, 1, 4), comments: []},
+        "Books": {list: csvrow[6].split(',').map(x => x.trim()), published: true, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: new Date(2021, 1, 5), lastUpdated: new Date(2021, 1, 9), comments: []},
+        "Countries you'd like to Visit": {list: csvrow[7].split(',').map(x => x.trim()), published: true, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: new Date(2021, 2, 5), lastUpdated: new Date(2021, 2, 5), comments: []},
+        "Foods": {list: csvrow[8].split(',').map(x => x.trim()), published: true, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: new Date(2021, 1, 7), lastUpdated: new Date(2021, 1, 7), comments: []},
+        "Games": {list: csvrow[9].split(',').map(x => x.trim()), published: true, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: new Date(2021, 8, 23), lastUpdated: new Date(2021, 8, 25), comments: []},
+        "Movies": {list: csvrow[10].split(',').map(x => x.trim()), published: false, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: null, lastUpdated: new Date(), comments: []},
+        "Pink Floyd Songs": {list: csvrow[11].split(',').map(x => x.trim()), published: false, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: null, lastUpdated: new Date(), comments: []},
+        "Programming Languages": {list: csvrow[12].split(',').map(x => x.trim()), published: false, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: null, lastUpdated: new Date(), comments: []},
+        "Professional Sports Teams": {list: csvrow[13].split(',').map(x => x.trim()), published: false, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: null, lastUpdated: new Date(), comments: []},
+        "TV Shows": {list: csvrow[14].split(',').map(x => x.trim()), published: false, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: null, lastUpdated: new Date(), comments: []},
       },
       "password": hash,
       "liked": [],
@@ -50,8 +54,10 @@ const bcrypt = require('bcrypt');
   app.use(express.json());
   app.use(cookieParser());
 
+  let router = express.Router();
+
   // Create Account with unique User Name and unique Email
-  app.post('/createAccount', async (req, res) => {
+  router.post('/createAccount', async (req, res) => {
     const { username, firstName, lastName, email, password } = req.body;
     const users = db.collection('users');
     const userExists = await users.findOne({ username });
@@ -70,7 +76,9 @@ const bcrypt = require('bcrypt');
         "lists": {}
       };
       users.insertOne(newUser).then(result => {
-        res.status(200).send(result);
+        const token = jwt.sign({ username: username }, 'secret');
+        res.cookie('token', token);
+        res.status(200).send({ token });
       }).catch(err => {
         res.status(400).send({ error: err });
       });
@@ -78,8 +86,9 @@ const bcrypt = require('bcrypt');
   });
 
   // Login Account using User Name
-  app.post('/login', async (req, res) => {
+  router.post('/login', async (req, res) => {
     const { username, password } = req.body;
+    console.log(username, password);
     if (!username || !password) {
       res.status(400).send({ error: 'Missing username or password' });
     }
@@ -113,10 +122,33 @@ const bcrypt = require('bcrypt');
       res.status(401).send({ error: 'Unauthorized' });
     }
   };
+  router.post('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.status(200).send({ message: 'Logged out' });
+  });
+  router.get('/username', async (req, res) => {
+    const token = req.cookies.token;
+    if (!token) {
+      res.status(200).send({ username: null });
+    } else {
+      jwt.verify(token, 'secret', (err, decoded) => {
+        if (err) {
+          res.status(200).send({ username: null });
+        } else {
+          db.collection('users').findOne({ username: decoded.username }).then(user => {
+            res.status(200).send({ username: user.username });
+          }).catch(err => {
+            res.status(200).send({ username: null });
+          });
+        }
+      });
+    }
+  });
+
 
   // Multiple Accounts Creation and LIst ownership
   // Create and Save Top 5 List
-  app.post('/createList', isLoggedIn, async (req, res) => {
+  router.post('/createList', isLoggedIn, async (req, res) => {
     let { listName, list } = req.body;
     const users = db.collection('users');
     const user = await users.findOne({ username: req.username });
@@ -125,7 +157,7 @@ const bcrypt = require('bcrypt');
     } else {
       let listExists = user.lists[listName];
       if (!listExists) {
-        users.updateOne({ username: req.username }, { $set: { [`lists.${listName}`]: {list: list, published: false, likes: 0, dislikes: 0, views: 0, publishedDate: null, lastUpdated: new Date(), comments: []} } }).then(result => {
+        users.updateOne({ username: req.username }, { $set: { [`lists.${listName}`]: {list: list, published: false, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: null, lastUpdated: new Date(), comments: []} } }).then(result => {
           res.status(200).send(result);
         }).catch(err => {
           res.status(400).send({ error: err });
@@ -137,7 +169,7 @@ const bcrypt = require('bcrypt');
   });
 
   // Edit Previously Saved Top 5 List
-  app.put('/renameList', isLoggedIn, async (req, res) => {
+  router.put('/renameList', isLoggedIn, async (req, res) => {
     let { listName, newListName } = req.body;
     const users = db.collection('users');
     const user = await users.findOne({ username: req.username });
@@ -160,7 +192,7 @@ const bcrypt = require('bcrypt');
       }
     }
   });
-  app.put('/editList', isLoggedIn, async (req, res) => {
+  router.put('/editList', isLoggedIn, async (req, res) => {
     let { listName, list } = req.body;
     const users = db.collection('users');
     const user = await users.findOne({ username: req.username });
@@ -181,7 +213,7 @@ const bcrypt = require('bcrypt');
   });
 
   // Publish Top 5 List
-  app.put('/setListPublished', isLoggedIn, async (req, res) => {
+  router.put('/setListPublished', isLoggedIn, async (req, res) => {
     let { listName, listPublished } = req.body;
     if (!listName || !listPublished) {
       res.status(400).send({ error: 'Missing listName or listPublished' });
@@ -205,7 +237,7 @@ const bcrypt = require('bcrypt');
   });
 
   // Delete Top 5 List with Modal verification
-  app.delete('/deleteList', isLoggedIn, async (req, res) => {
+  router.delete('/deleteList', isLoggedIn, async (req, res) => {
     let { listName } = req.body;
     const users = db.collection('users');
     const user = await users.findOne({ username: req.username });
@@ -226,7 +258,7 @@ const bcrypt = require('bcrypt');
   });
 
   // View and Search Your Lists (case insensitive starts with)
-  app.get('/viewPersonalListsByName', isLoggedIn, async (req, res) => {
+  router.get('/viewPersonalListsByName', isLoggedIn, async (req, res) => {
     const listNameStartsWith = req.query.listNameStartsWith;
     const users = db.collection('users');
     const user = await users.findOne({ username: req.username });
@@ -241,11 +273,13 @@ const bcrypt = require('bcrypt');
       listNames.forEach(listName => {
         filteredLists[listName] = user.lists[listName];
       });
-      res.status(200).send(filteredLists);
+      let result = {};
+      result[req.username] = filteredLists;
+      res.status(200).send(result);
     }
   });
 
-  app.get('/viewPublishedListsByName', isLoggedIn, async (req, res) => {
+  router.get('/viewPublishedListsByName', isLoggedIn, async (req, res) => {
     // case insensitive contains
     const listNameContains = req.query.listNameContains;
     const users = await db.collection('users');
@@ -273,7 +307,7 @@ const bcrypt = require('bcrypt');
     }
   });
   
-  app.get('/viewPublishedListsByUsername', isLoggedIn, async (req, res) => {
+  router.get('/viewPublishedListsByUsername', isLoggedIn, async (req, res) => {
     // case insensitive contains
     const usernameContains = req.query.usernameContains;
     const users = await db.collection('users');
@@ -301,7 +335,7 @@ const bcrypt = require('bcrypt');
     }
   });
   
-  app.post('/addComment', isLoggedIn, async (req, res) => {
+  router.post('/addComment', isLoggedIn, async (req, res) => {
     let { listUsername, listName, comment } = req.body;
     const users = db.collection('users');
     const user = await users.findOne({ username: req.username });
@@ -327,7 +361,7 @@ const bcrypt = require('bcrypt');
   });
 
   // Expand a Named List (shows items and comments, increments views)
-  app.get('/incrementViews', isLoggedIn, async (req, res) => {
+  router.get('/incrementViews', isLoggedIn, async (req, res) => {
     let { listUsername, listName } = req.query;
     const users = db.collection('users');
     const user = await users.findOne({ username: req.username });
@@ -353,7 +387,7 @@ const bcrypt = require('bcrypt');
   });
 
   // Like/Dislike Named Lists with Proper Toggling
-  app.post('/likeList', isLoggedIn, async (req, res) => {
+  router.post('/likeList', isLoggedIn, async (req, res) => {
     let { listUsername, listName } = req.body;
     const users = db.collection('users');
     const user = await users.findOne({ username: req.username });
@@ -391,7 +425,7 @@ const bcrypt = require('bcrypt');
     }
   });
 
-  app.post('/dislikeList', isLoggedIn, async (req, res) => {
+  router.post('/dislikeList', isLoggedIn, async (req, res) => {
     let { listUsername, listName } = req.body;
     const users = db.collection('users');
     const user = await users.findOne({ username: req.username });
@@ -408,7 +442,7 @@ const bcrypt = require('bcrypt');
           users.updateOne({ username: user.username }, { $push: { disliked: joinedName } }).catch(err => {
             res.status(400).send({ error: err });
           });
-          users.updateOne({ username: listUsername }, { $inc: { [`lists.${listName}.likes`]: -1 } }).then(result => {
+          users.updateOne({ username: listUsername }, { $inc: { [`lists.${listName}.dislikes`]: 1 } }).then(result => {
             res.status(200).send(result);
           }).catch(err => {
             res.status(400).send({ error: err });
@@ -417,7 +451,7 @@ const bcrypt = require('bcrypt');
           users.updateOne({ username: user.username }, { $pull: { disliked: joinedName } }).catch(err => {
             res.status(400).send({ error: err });
           });
-          users.updateOne({ username: listUsername }, { $inc: { [`lists.${listName}.likes`]: 1 } }).then(result => {
+          users.updateOne({ username: listUsername }, { $inc: { [`lists.${listName}.dislikes`]: -1 } }).then(result => {
             res.status(200).send(result);
           }).catch(err => {
             res.status(400).send({ error: err });
@@ -428,6 +462,11 @@ const bcrypt = require('bcrypt');
       }
     }
   });
+
+  app.use('/api', router);
+
+  const proxy = require("express-http-proxy");
+  app.all('*', proxy('http://localhost:3000'));
 
   // View and Search All User Lists (case-insensitive user name match)
   // User lists display all dynamic details

@@ -19,33 +19,33 @@ import fetch from 'node-fetch';
   //   })
   // }).then(res => res.json()).then(res => console.log(res));
 
-  let token = await fetch('http://localhost:3001/login', {
+  let token = await fetch('http://localhost:3001/api/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       username: 'lincnguyen',
-      password: 'Ln2121809',
+      password: '123',
     })
   }).then(res => res.json()).then(res => {
     return res.token;
   });
-  // console.log(token);
+  console.log(token);
 
-  await fetch('http://localhost:3001/createList', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Cookie': 'token=' + token,
-    },
-    body: JSON.stringify({
-      listName: 'name1',
-      list: [ 'test1', 'test2', 'test3', 'test4', 'test5' ]
-    })
-  }).then(res => res.json()).then(res => console.log(res))
+  // await fetch('http://localhost:3001/createList', {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     'Cookie': 'token=' + token,
+  //   },
+  //   body: JSON.stringify({
+  //     listName: 'name1',
+  //     list: [ 'test1', 'test2', 'test3', 'test4', 'test5' ]
+  //   })
+  // }).then(res => res.json()).then(res => console.log(res))
 
-  const users = db.collection('users').find({});
-  console.log(await users.toArray());
+  // const users = db.collection('users').find({});
+  // console.log(await users.toArray());
   await client.close();
 })();
