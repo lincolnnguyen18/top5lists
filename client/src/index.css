@@ -8,3 +8,8 @@ html, body, #root {
 .hidden {
   display: none;
 }
+
+.cursor:hover {
+  cursor: pointer;
+  background-color: #f5f5f5;
+}
