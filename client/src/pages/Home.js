@@ -12,6 +12,7 @@ import Menu from '@mui/material/Menu';
 import HouseIcon from '@mui/icons-material/House';
 import GroupsIcon from '@mui/icons-material/Groups';
 import PersonIcon from '@mui/icons-material/Person';
+import CreateListDialog from '../components/CreateListDialog';
 
 import { TextField } from '@mui/material';
 
@@ -25,7 +26,12 @@ export default function Home() {
   let [searchText, setSearchText] = React.useState('');
   let [searchMode, setSearchMode] = React.useState('Your Lists');
   let [username, setUsername] = React.useState('');
+  let [showCreate, setShowCreate] = React.useState(false);
   const navigate = useNavigate();
+
+  const handleCreateList = () => {
+    setShowCreate(true);
+  }
 
   const handleSearch = () => {
     console.log(searchText);
@@ -212,6 +218,7 @@ export default function Home() {
 
   return (
     <>
+      <CreateListDialog open={showCreate} setOpen={setShowCreate} updateRes={updateRes} />
       <AppBar position="fixed">
         <Toolbar style={{
           display: 'flex',
@@ -259,7 +266,7 @@ export default function Home() {
               color: 'white',
             }}>Sort by</Button>
             <Button onClick={(e) => {
-              // handleCreateList();
+              handleCreateList();
             }} style={{
               color: 'white',
             }}>Create List</Button>

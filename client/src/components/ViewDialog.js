@@ -3,7 +3,6 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { TextField } from '@mui/material';
 
@@ -15,10 +14,10 @@ export default function ScrollDialog(props) {
   };
 
   React.useEffect(() => {
-    if (open) {
+    if (props.open) {
       setComment('');
     }
-  }, [open]);
+  }, [props.open]);
 
   const handleSubmitComment = (item) => {
     console.log(item);
@@ -46,9 +45,8 @@ export default function ScrollDialog(props) {
     <Dialog
       open={props.open}
       onClose={handleClose}
-      scroll='paper'
     >
-      <DialogTitle id="scroll-dialog-title">
+      <DialogTitle>
         <div style={{
           display: 'flex',
           flexDirection: 'row',
@@ -93,7 +91,7 @@ export default function ScrollDialog(props) {
           </ol>
         </div>
       </DialogTitle>
-      <DialogContent dividers={scroll === 'paper'}>
+      <DialogContent>
         <div>
           {props.openItem && props.openItem.comments.length > 0 ? props.openItem.comments.map((comment, index) => {
             return (

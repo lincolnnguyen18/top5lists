@@ -155,9 +155,9 @@ function randomIntFromInterval(min, max) { // min and max included
     if (!user) {
       res.status(400).send({ error: 'User does not exist' });
     } else {
-      let listExists = user.lists[listName];
+      let listExists = Object.keys(user.lists).find(key => key.toLowerCase() === listName.toLowerCase());
       if (!listExists) {
-        users.updateOne({ username: req.username }, { $set: { [`lists.${listName}`]: {list: list, published: false, likes: randomIntFromInterval(0, 1000), dislikes: randomIntFromInterval(0, 1000), views: randomIntFromInterval(0, 1000), publishedDate: null, lastUpdated: new Date(), comments: []} } }).then(result => {
+        users.updateOne({ username: req.username }, { $set: { [`lists.${listName}`]: {list: list, published: false, likes: 0, dislikes: 0, views: 0, publishedDate: null, lastUpdated: new Date(), comments: []} } }).then(result => {
           res.status(200).send(result);
         }).catch(err => {
           res.status(400).send({ error: err });
@@ -227,8 +227,8 @@ function randomIntFromInterval(min, max) { // min and max included
     if (!user) {
       res.status(400).send({ error: 'User does not exist' });
     } else {
-      let listExists = user.lists[listName];
-      if (listExists) {
+      let sameNameList = Object.keys(user.lists).find(key => key.toLowerCase() === listName.toLowerCase());
+      if (user.lists[sameNameList].published === false) {
         users.updateOne({ username: req.username }, { $set: { [`lists.${listName}.published`]: true, [`lists.${listName}.publishedDate`]: new Date() } }).then(result => {
           res.status(200).send(result);
         }).catch(err => {

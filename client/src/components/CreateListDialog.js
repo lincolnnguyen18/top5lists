@@ -3,11 +3,10 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { TextField } from '@mui/material';
 
-export default function ScrollDialog(props) {
+export default function CreateListDialog(props) {
   const [listName, setListName] = React.useState('');
   const [item1, setItem1] = React.useState('');
   const [item2, setItem2] = React.useState('');
@@ -20,123 +19,85 @@ export default function ScrollDialog(props) {
     props.setOpen(false);
   };
 
+  React.useEffect(() => {
+    if (props.open) {
+      setListName('');
+      setItem1('');
+      setItem2('');
+      setItem3('');
+      setItem4('');
+      setItem5('');
+      setError('');
+    }
+  }, [props.open]);
+
   const handleSave = () => {
-    // console.log('saving')
-    // console.log({ listName, item1, item2, item3, item4, item5 });
-    // console.log(props.openItem.name, props.openItem.list);
-    // let listName2 = listName;
-    if (props.openItem.name !== listName) {
-      fetch('/api/renameList', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          listName: props.openItem.name,
-          newListName: listName
-        })
-      })
-      .then(res => res.json())
-      .then(res => {
-        if (res.error) {
-          setError(res.error);
+    fetch('/api/createList', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        listName,
+        list: [item1, item2, item3, item4, item5],
+      }),
+    }).then(res => {
+      if (res.status === 200) {
+        props.setOpen(false);
+        props.updateRes();
+      } else {
+        res.json().then(data => {
+          setError(data.error);
           setTimeout(() => {
             setError('');
           }, 3000);
-        } else {
-          console.log(res);
-          props.updateRes()
-          handleClose();
-        }
-      })
-    }
-    if (JSON.stringify(props.openItem.list) !== JSON.stringify([item1, item2, item3, item4, item5])) {
-      fetch('/api/editList', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          listName: props.openItem.name,
-          list: [item1, item2, item3, item4, item5]
-        })
-      })
-      .then(res => res.json())
-      .then(res => {
-        console.log(res);
-        props.updateRes()
-        handleClose();
-      })
-    }
-    handleClose();
+        });
+      }
+    });
   }
-     
+
   const handlePublish = () => {
-    if (listName !== props.openItem.name) {
-      fetch('/api/createList', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          listName,
-          list: [item1, item2, item3, item4, item5],
-        }),
-      }).then(res => {
-        if (res.error) {
-          setError(res.error);
-          setTimeout(() => {
-            setError('');
-          }, 3000);
-        }
-      }).then(() => {
+    fetch('/api/createList', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        listName,
+        list: [item1, item2, item3, item4, item5],
+      }),
+    }).then(res => {
+      if (res.status === 200) {
         fetch('/api/publishList', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            listName: listName
-          })
-        })
-        .then(res => res.json())
-        .then(res => {
-          console.log(res);
-          if (res.error) {
-            setError(res.error);
-            setTimeout(() => {
-              setError('');
-            }, 3000);
+            listName,
+          }),
+        }).then(res => {
+          if (res.status === 200) {
+            props.setOpen(false);
+            props.updateRes();
           } else {
-            props.updateRes()
-            handleClose();
+            res.json().then(data => {
+              setError(data.error);
+              setTimeout(() => {
+                setError('');
+              }, 3000);
+            });
           }
-        })
-      });
-    } else {
-      fetch('/api/publishList', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          listName: listName
-        })
-      })
-      .then(res => res.json())
-      .then(res => {
-        console.log(res);
-        if (res.error) {
-          setError(res.error);
+        }); 
+      } else {
+        res.json().then(data => {
+          setError(data.error);
           setTimeout(() => {
             setError('');
           }, 3000);
-        } else {
-          props.updateRes()
-          handleClose();
-        }
-      });
-    }
+        });
+      }
+    });
   }
 
   React.useEffect(() => {
