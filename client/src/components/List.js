@@ -30,6 +30,21 @@ export default function List(props) {
       return;
     }
     console.log('List item clicked', item);
+    fetch('/api/incrementViews', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        listUsername: item.username,
+        listName: item.name,
+      })
+    }).then(res => res.json()).then(res => {
+      console.log(res);
+      props.updateRes();
+    }).catch(err => {
+      console.log(err);
+    });
     setOpenItem(item);
     setOpenView(true);
   };
@@ -165,11 +180,11 @@ export default function List(props) {
                 gap: '10px',
               }}>
                 <p>Views: {item.views}</p>
-                <a href="#" onClick={(e) => {
+                {item.username === props.username ? <a href="#" onClick={(e) => {
                   e.stopPropagation();
                   setDeleteItem(item);
                   setOpenDelete(true);
-                }}>Delete</a>
+                }}>Delete</a> : null}
               </div>
             </div>
           </div>

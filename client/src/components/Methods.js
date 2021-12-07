@@ -5,4 +5,11 @@ const loggedIn = async() => {
     return data.username ? true : false;
   })
 };
-export { loggedIn };
+const loggedIn2 = async() => {
+  return fetch('/api/username', {
+    method: 'GET'
+  }).then(res => res.json()).then(data => {
+    return data.username;
+  })
+};
+export { loggedIn, loggedIn2 };

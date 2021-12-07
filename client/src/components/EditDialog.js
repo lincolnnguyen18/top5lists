@@ -14,6 +14,7 @@ export default function ScrollDialog(props) {
   const [item3, setItem3] = React.useState('');
   const [item4, setItem4] = React.useState('');
   const [item5, setItem5] = React.useState('');
+  const [error, setError] = React.useState('');
 
   const handleClose = () => {
     props.setOpen(false);
@@ -37,9 +38,16 @@ export default function ScrollDialog(props) {
       })
       .then(res => res.json())
       .then(res => {
-        console.log(res);
-        props.updateRes()
-        handleClose();
+        if (res.error) {
+          setError(res.error);
+          setTimeout(() => {
+            setError('');
+          }, 3000);
+        } else {
+          console.log(res);
+          props.updateRes()
+          handleClose();
+        }
       })
     }
     if (JSON.stringify(props.openItem.list) !== JSON.stringify([item1, item2, item3, item4, item5])) {
@@ -74,35 +82,41 @@ export default function ScrollDialog(props) {
       })
     }).then(res => res.json())
     .then(res => {
-      console.log(res);
-      fetch('/api/editList', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          listName: listName,
-          list: [item1, item2, item3, item4, item5]
-        })
-      }).then(res => res.json())
-      .then(res => {
-        console.log(res);
-        fetch('/api/publishList', {
+      if (res.error) {
+        setError(res.error);
+        setTimeout(() => {
+          setError('');
+        }, 3000);
+      } else {
+        fetch('/api/editList', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            listName: listName
+            listName: listName,
+            list: [item1, item2, item3, item4, item5]
           })
-        })
-        .then(res => res.json())
+        }).then(res => res.json())
         .then(res => {
           console.log(res);
-          props.updateRes()
-          handleClose();
+          fetch('/api/publishList', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              listName: listName
+            })
+          })
+          .then(res => res.json())
+          .then(res => {
+            console.log(res);
+            props.updateRes()
+            handleClose();
+          })
         })
-      })
+      }
     })
   }
 
@@ -139,6 +153,7 @@ export default function ScrollDialog(props) {
         display: 'flex',
         flexDirection: 'column',
       }}>
+        {error ? <p style={{color: 'red'}}>{error}</p> : null}
         <TextField label="List Name" variant="filled" fullWidth value={listName} onChange={(e) => setListName(e.target.value)} />
         <ol>
           <li><TextField label="Item 1" variant="filled" fullWidth value={item1} onChange={(e) => setItem1(e.target.value)} /></li>

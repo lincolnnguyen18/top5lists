@@ -3,15 +3,16 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 import { Link, useNavigate } from 'react-router-dom';
-import { loggedIn } from '../components/Methods';
+import { loggedIn, loggedIn2 } from '../components/Methods';
 import Loading from '../components/Loading';
 import './StartPage.css';
 import List from '../components/List';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import AccountCircle from '@mui/icons-material/AccountCircle';
+import HouseIcon from '@mui/icons-material/House';
+import GroupsIcon from '@mui/icons-material/Groups';
+import PersonIcon from '@mui/icons-material/Person';
+
 import { TextField } from '@mui/material';
 
 export default function Home() {
@@ -22,6 +23,8 @@ export default function Home() {
   let [menuOpen, setMenuOpen] = React.useState(false);
   let [anchorEl, setAnchorEl] = React.useState(null);
   let [searchText, setSearchText] = React.useState('');
+  let [searchMode, setSearchMode] = React.useState('Your Lists');
+  let [username, setUsername] = React.useState('');
   const navigate = useNavigate();
 
   const handleSearch = () => {
@@ -80,26 +83,97 @@ export default function Home() {
   }, [res, sortMode]);
 
   const updateRes = () => {
-    let url = '/api/viewPersonalListsByName';
-    if (searchText.trim() !== '') {
-      url = '/api/viewPersonalListsByName?listNameStartsWith=' + searchText;
+    console.log(`searchm mode: ${searchMode}`);
+    switch (searchMode) {
+      case 'Your Lists':
+        fetch('/api/viewPersonalListsByName?listNameStartsWith=' + searchText, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }).then(res => res.json()).then(res => {
+          console.log(res)
+          setRes(res);
+        });
+        break;
+      case 'Named Published Lists':
+        fetch('/api/viewPublishedListsByName?listNameContains=' + searchText, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }).then(res => res.json()).then(res => {
+          console.log(res)
+          setRes(res);
+        });
+        break;
+      case 'User Published Lists':
+        fetch('/api/viewPublishedListsByUsername?usernameContains=' + searchText, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }).then(res => res.json()).then(res => {
+          console.log(res)
+          setRes(res);
+        });
+        break;
+      }
     }
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(res => res.json()).then(res => {
-      console.log(res)
-      setRes(res);
-    });
-  }
+
+    const updateRes2 = (searchMode, searchText) => {
+      console.log(`searchm mode: ${searchMode}`);
+      switch (searchMode) {
+        case 'Your Lists':
+          fetch('/api/viewPersonalListsByName?listNameStartsWith=' + searchText, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }).then(res => res.json()).then(res => {
+            console.log(res)
+            setRes(res);
+          });
+          break;
+        case 'Named Published Lists':
+          fetch('/api/viewPublishedListsByName?listNameContains=' + searchText, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }).then(res => res.json()).then(res => {
+            console.log(res)
+            setRes(res);
+          });
+          break;
+        case 'User Published Lists':
+          fetch('/api/viewPublishedListsByUsername?usernameContains=' + searchText, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }).then(res => res.json()).then(res => {
+            console.log(res)
+            setRes(res);
+          });
+          break;
+        }
+      }
 
   React.useEffect(() => {
-    loggedIn().then(res => {
-      if (!res) {
+    // loggedIn().then(res => {
+    //   if (!res) {
+    //     navigate('/login');
+    //   } else {
+    //     setLoaded(true);
+    //     updateRes();
+    //   }
+    // });
+    loggedIn2().then(username => {
+      if (!username) {
         navigate('/login');
       } else {
+        setUsername(username);
         setLoaded(true);
         updateRes();
       }
@@ -119,9 +193,8 @@ export default function Home() {
         height: '100%',
         margin: 'auto',
       }}>
-        <h1>Home</h1>
-        <List data={lists} updateRes={updateRes} />
-        </div> */}
+        <h1>{searchMode}</h1>
+        <List data={lists} updateRes={updateRes} username={username} />
       </div>
     </>
   );
@@ -151,6 +224,24 @@ export default function Home() {
             gap: '1em',
             alignItems: 'center',
           }}>
+            <HouseIcon style={{ marginRight: '1em' }} className='pointer' onClick={async () => {
+              setLists([]);
+              await setSearchMode('Your Lists');
+              await setSearchText('');
+              await updateRes2('Your Lists', '');
+            }}/>
+            <GroupsIcon style={{ marginRight: '1em' }} className='pointer' onClick={async () => {
+              setLists([]);
+              await setSearchMode('Named Published Lists');
+              await setSearchText('');
+              await updateRes2('Named Published Lists', '');
+            }}/>
+            <PersonIcon style={{ marginRight: '1em' }} className='pointer' onClick={async () => {
+              setLists([]);
+              await setSearchMode('User Published Lists');
+              await setSearchText('');
+              await updateRes2('User Published Lists', '');
+            }}/>
             <TextField id="outlined-basic" label="Search" variant="outlined" autoComplete="no" style={{
               backgroundColor: 'white'
             }} onChange={(e) => {
@@ -167,6 +258,11 @@ export default function Home() {
             }} style={{
               color: 'white',
             }}>Sort by</Button>
+            <Button onClick={(e) => {
+              // handleCreateList();
+            }} style={{
+              color: 'white',
+            }}>Create List</Button>
             <Menu
               id="menu-appbar"
               anchorEl={anchorEl}

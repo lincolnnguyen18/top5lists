@@ -177,7 +177,9 @@ function randomIntFromInterval(min, max) { // min and max included
       res.status(400).send({ error: 'User does not exist' });
     } else {
       let listExists = user.lists[listName];
-      if (listExists) {
+      // check if list with new name already exists case insensitive
+      let newNameListExists = Object.keys(user.lists).find(key => key.toLowerCase() === newListName.toLowerCase());
+      if (listExists && !newNameListExists) {
         users.updateOne({ username: req.username }, { $rename: { [`lists.${listName}`]: `lists.${newListName}` } }).then(result => {
           users.updateOne({ username: req.username }, { $set: { [`lists.${newListName}.lastUpdated`]: new Date() } }).then(result => {
             res.status(200).send(result);
@@ -187,8 +189,10 @@ function randomIntFromInterval(min, max) { // min and max included
         }).catch(err => {
           res.status(400).send({ error: err });
         });
-      } else {
+      } else if (!listExists) {
         res.status(400).send({ error: 'List does not exist' });
+      } else {
+        res.status(400).send({ error: 'List with that name already exists' });
       }
     }
   });
@@ -361,8 +365,8 @@ function randomIntFromInterval(min, max) { // min and max included
   });
 
   // Expand a Named List (shows items and comments, increments views)
-  router.get('/incrementViews', isLoggedIn, async (req, res) => {
-    let { listUsername, listName } = req.query;
+  router.post('/incrementViews', isLoggedIn, async (req, res) => {
+    let { listUsername, listName } = req.body;
     const users = db.collection('users');
     const user = await users.findOne({ username: req.username });
     if (!user) {
