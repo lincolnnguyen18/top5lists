@@ -7,12 +7,15 @@ import { Button } from '@mui/material';
 import { FixedSizeList } from 'react-window';
 import ViewDialog from './ViewDialog';
 import EditDialog from './EditDialog';
+import DeleteDialog from './DeleteDialog';
 
 export default function List(props) {
   const [openView, setOpenView] = React.useState(false);
   const [openItem, setOpenItem] = React.useState(null);
   const [openEdit, setOpenEdit] = React.useState(false);
+  const [openDelete, setOpenDelete] = React.useState(false);
   const [editItem, setEditItem] = React.useState(null);
+  const [deleteItem, setDeleteItem] = React.useState(null);
 
   React.useEffect(() => {
     props.data.forEach((item) => {
@@ -29,6 +32,25 @@ export default function List(props) {
     console.log('List item clicked', item);
     setOpenItem(item);
     setOpenView(true);
+  };
+
+  const handleDelete = (item) => {
+    console.log('Delete item', item);
+    fetch('/api/deleteList', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        listName: item.name,
+      }),
+    }).then((res) => {
+      res.json().then((data) => {
+        console.log('Delete response', data);
+        props.updateRes();
+        setOpenDelete(false);
+      });
+    });
   };
 
   const handleEditClick = (item) => {
@@ -77,6 +99,7 @@ export default function List(props) {
     <>
       <ViewDialog open={openView} setOpen={setOpenView} openItem={openItem} updateRes={props.updateRes} />
       <EditDialog open={openEdit} setOpen={setOpenEdit} openItem={editItem} updateRes={props.updateRes} />
+      <DeleteDialog open={openDelete} setOpen={setOpenDelete} handleDelete={handleDelete} deleteItem={deleteItem} />
       <div style={{
         height: '70%',
         overflow: 'auto',
@@ -142,7 +165,11 @@ export default function List(props) {
                 gap: '10px',
               }}>
                 <p>Views: {item.views}</p>
-                <a href="#">Delete</a>
+                <a href="#" onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteItem(item);
+                  setOpenDelete(true);
+                }}>Delete</a>
               </div>
             </div>
           </div>
