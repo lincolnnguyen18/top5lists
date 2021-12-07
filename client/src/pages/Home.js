@@ -65,21 +65,25 @@ export default function Home() {
     convertRes(res);
   }, [res, sortMode]);
 
+  const updateRes = () => {
+    fetch('/api/viewPersonalListsByName', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(res => res.json()).then(res => {
+      console.log(res)
+      setRes(res);
+    });
+  }
+
   React.useEffect(() => {
     loggedIn().then(res => {
       if (!res) {
         navigate('/login');
       } else {
         setLoaded(true);
-        fetch('/api/viewPersonalListsByName', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }).then(res => res.json()).then(res => {
-          console.log(res)
-          setRes(res);
-        });
+        updateRes();
       }
     });
   }, []);
@@ -99,7 +103,7 @@ export default function Home() {
         margin: 'auto',
       }}>
         <h1>Home</h1>
-        <List data={lists} />
+        <List data={lists} updateRes={updateRes} />
         {/* <div style={{ 
           display: 'flex',
           flexDirection: 'row',

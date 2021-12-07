@@ -8,6 +8,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { TextField } from '@mui/material';
 
 export default function ScrollDialog(props) {
+  const [comment, setComment] = React.useState('');
+
   const handleClose = () => {
     props.setOpen(false);
   };
@@ -15,12 +17,35 @@ export default function ScrollDialog(props) {
   const descriptionElementRef = React.useRef(null);
   React.useEffect(() => {
     if (open) {
+      setComment('');
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
         descriptionElement.focus();
       }
     }
   }, [open]);
+
+  const handleSubmitComment = (item) => {
+    console.log(item);
+    console.log(comment);
+    fetch('/api/addComment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        listUsername: item.username,
+        listName: item.name,
+        comment: comment,
+      }),
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      props.updateRes();
+      console.log(data);
+      // handleClose();
+    });
+  }
 
   return (
     <Dialog
@@ -74,18 +99,13 @@ export default function ScrollDialog(props) {
         </div>
       </DialogTitle>
       <DialogContent dividers={scroll === 'paper'}>
-        <DialogContentText
-          tabIndex={-1}
-        >
+        <div>
           {props.openItem && props.openItem.comments.length > 0 ? props.openItem.comments.map((comment, index) => {
             return (
-              <div key={index}>
-                <p>{comment.username}</p>
-                <p>{comment.comment}</p>
-              </div>
+                <p key={index}><b>{comment.username}</b>: {comment.comment}</p>
             )
           }) : 'No comments'}
-        </DialogContentText>
+        </div>
       </DialogContent>
       <DialogActions style={{
         display: 'flex',
@@ -99,8 +119,8 @@ export default function ScrollDialog(props) {
           alignItems: 'center',
           gap: '10px',
         }}>
-          <TextField id="outlined-basic" label="Comment" variant="outlined" autoComplete="off"/>
-          <Button onClick={handleClose} color="primary">Submit Comment</Button>
+          <TextField label="Comment" variant="outlined" autoComplete="off" onChange={(e) => {setComment(e.target.value)}} />
+          <Button onClick={() => handleSubmitComment(props.openItem)} color="primary">Submit Comment</Button>
         </div>
         <Button onClick={handleClose}>Close</Button>
       </DialogActions>

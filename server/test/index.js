@@ -33,17 +33,17 @@ import fetch from 'node-fetch';
   });
   console.log(token);
 
-  // await fetch('http://localhost:3001/createList', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     'Cookie': 'token=' + token,
-  //   },
-  //   body: JSON.stringify({
-  //     listName: 'name1',
-  //     list: [ 'test1', 'test2', 'test3', 'test4', 'test5' ]
-  //   })
-  // }).then(res => res.json()).then(res => console.log(res))
+  await fetch('http://localhost:3001/renameList', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Cookie': 'token=' + token,
+    },
+    body: JSON.stringify({
+      listName: 'Games',
+      newListName: 'Games2',
+    })
+  }).then(res => res.json()).then(res => console.log(res))
 
   // const users = db.collection('users').find({});
   // console.log(await users.toArray());

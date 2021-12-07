@@ -213,10 +213,10 @@ function randomIntFromInterval(min, max) { // min and max included
   });
 
   // Publish Top 5 List
-  router.put('/setListPublished', isLoggedIn, async (req, res) => {
-    let { listName, listPublished } = req.body;
-    if (!listName || !listPublished) {
-      res.status(400).send({ error: 'Missing listName or listPublished' });
+  router.put('/publishList', isLoggedIn, async (req, res) => {
+    let { listName } = req.body;
+    if (!listName) {
+      res.status(400).send({ error: 'Missing listName' });
     }
     const users = db.collection('users');
     const user = await users.findOne({ username: req.username });
@@ -225,7 +225,7 @@ function randomIntFromInterval(min, max) { // min and max included
     } else {
       let listExists = user.lists[listName];
       if (listExists) {
-        users.updateOne({ username: req.username }, { $set: { [`lists.${listName}.published`]: listPublished, [`lists.${listName}.publishedDate`]: new Date() } }).then(result => {
+        users.updateOne({ username: req.username }, { $set: { [`lists.${listName}.published`]: true, [`lists.${listName}.publishedDate`]: new Date() } }).then(result => {
           res.status(200).send(result);
         }).catch(err => {
           res.status(400).send({ error: err });
@@ -400,7 +400,7 @@ function randomIntFromInterval(min, max) { // min and max included
       } else {
         let listExists = listUser.lists[listName];
         let joinedName = `${listUsername}_${listName}`;
-        if (listExists && !user.liked.includes(joinedName) && !user.disliked.includes(joinedName)) {
+        if (listExists && !user.liked.includes(joinedName)) {
           users.updateOne({ username: user.username }, { $push: { liked: joinedName } }).catch(err => {
             res.status(400).send({ error: err });
           });
@@ -438,7 +438,7 @@ function randomIntFromInterval(min, max) { // min and max included
       } else {
         let listExists = listUser.lists[listName];
         let joinedName = `${listUsername}_${listName}`;
-        if (listExists && !user.disliked.includes(joinedName && !user.liked.includes(joinedName))) {
+        if (listExists && !user.disliked.includes(joinedName)) {
           users.updateOne({ username: user.username }, { $push: { disliked: joinedName } }).catch(err => {
             res.status(400).send({ error: err });
           });
