@@ -7,13 +7,27 @@ import { loggedIn } from '../components/Methods';
 import Loading from '../components/Loading';
 import './StartPage.css';
 import List from '../components/List';
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import { TextField } from '@mui/material';
 
 export default function Home() {
   let [loaded, setLoaded] = React.useState(false);
   let [lists, setLists] = React.useState([]);
   let [res, setRes] = React.useState({});
   let [sortMode, setSortMode] = React.useState('likesDesc');
+  let [menuOpen, setMenuOpen] = React.useState(false);
+  let [anchorEl, setAnchorEl] = React.useState(null);
+  let [searchText, setSearchText] = React.useState('');
   const navigate = useNavigate();
+
+  const handleSearch = () => {
+    console.log(searchText);
+    updateRes();
+  }
 
   const convertRes = () => {
     let arr = [];
@@ -66,7 +80,11 @@ export default function Home() {
   }, [res, sortMode]);
 
   const updateRes = () => {
-    fetch('/api/viewPersonalListsByName', {
+    let url = '/api/viewPersonalListsByName';
+    if (searchText.trim() !== '') {
+      url = '/api/viewPersonalListsByName?listNameStartsWith=' + searchText;
+    }
+    fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -96,7 +114,6 @@ export default function Home() {
         alignItems: 'center',
         flexDirection: 'column',
         backgroundColor: '#fff',
-        padding: '3em',
         width: 'fit-content',
         minWidth: '700px',
         height: '100%',
@@ -104,15 +121,6 @@ export default function Home() {
       }}>
         <h1>Home</h1>
         <List data={lists} updateRes={updateRes} />
-        {/* <div style={{ 
-          display: 'flex',
-          flexDirection: 'row',
-          gap: '3em',
-          marginTop: '1em',
-        }}>
-          <Link to="/register" style={{textDecoration: 'none'}}><Button variant="contained" color="primary">Create Account</Button></Link>
-          <Link to="/login" style={{textDecoration: 'none'}}><Button variant="contained" color="primary">Login</Button></Link>
-          <Button variant="contained" color="primary">Continue as Guest</Button>
         </div> */}
       </div>
     </>
@@ -137,7 +145,66 @@ export default function Home() {
           justifyContent: 'space-between',
         }}>
           <Link to="/" style={{textDecoration: 'none', color: 'white'}}><h2>Top 5 Lister</h2></Link>
-          <Button color="inherit" onClick={handleLogout}>Logout</Button>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '1em',
+            alignItems: 'center',
+          }}>
+            <TextField id="outlined-basic" label="Search" variant="outlined" autoComplete="no" style={{
+              backgroundColor: 'white'
+            }} onChange={(e) => {
+              setSearchText(e.target.value);
+            }} />
+            <Button onClick={(e) => {
+              handleSearch();
+            }} style={{
+              color: 'white',
+            }}>Search</Button>
+            <Button onClick={(e) => {
+              setAnchorEl(e.currentTarget);
+              setMenuOpen(true);
+            }} style={{
+              color: 'white',
+            }}>Sort by</Button>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={menuOpen}
+              onClose={() => setMenuOpen(false)}
+            >
+              <MenuItem onClick={() => { 
+                setMenuOpen(false);
+                setSortMode('publishedDateDesc');
+              }}>Published Date (Newest)</MenuItem>
+              <MenuItem onClick={() => {
+                setMenuOpen(false);
+                setSortMode('publishedDateAsc');
+              }}>Published Date (Oldest)</MenuItem>
+              <MenuItem onClick={() => {
+                setMenuOpen(false);
+                setSortMode('viewsDesc');
+              }}>Views</MenuItem>
+              <MenuItem onClick={() => {
+                setMenuOpen(false);
+                setSortMode('likesDesc');
+              }}>Likes</MenuItem>
+              <MenuItem onClick={() => {
+                setMenuOpen(false);
+                setSortMode('dislikesDesc');
+              }}>Dislikes</MenuItem>
+            </Menu>
+            <Button color="inherit" onClick={handleLogout}>Logout</Button>
+          </div>
         </Toolbar>
       </AppBar>
       {loaded ? page : <Loading />}
